@@ -4,7 +4,10 @@ Module.register("MMM-bitcoin", {
 
   result: {},
   defaults: {
-    updateInterval: 60000
+      updateInterval: 60000,
+      cryptoCurrency: ['BTC', 'ETH', 'LTC'],
+      price: ['USD'],
+      exhange: ['Coinbase']
   },
 
   getStyles: function() {
@@ -22,14 +25,18 @@ Module.register("MMM-bitcoin", {
     wrapper.className = 'ticker';
 
     var data = this.result;
-    var symbolElement =  document.createElement("span");
-    var symbol = "Bitstamp";
-    var lastPrice = data.last;
-    if (lastPrice) {
-      symbolElement.innerHTML = symbol + ' $';
-      wrapper.appendChild(symbolElement);
+    var crypto = this.config.cryptoCurrency;
+    var price = this.config.price;
+    var exchange = this.config.exchange;
+    var lastPrice = 0;
+    if (data) {
       var priceElement = document.createElement("span");
-      priceElement.innerHTML = lastPrice;
+      for (var i = 0; i < crypto.length; i++) {
+        for (var j = 0; j < price.length; j++) {
+          lastPrice = data[crypto[i]][price[j]];
+          priceElement.innerHTML += crypto[i] + ' | ' + price[j] + ': ' + lastPrice + '<br>';
+        }
+      }
       wrapper.appendChild(priceElement);
     }
     return wrapper;
@@ -48,7 +55,8 @@ Module.register("MMM-bitcoin", {
   },
 
   getTickers: function () {
-    var url = 'https://www.bitstamp.net/api/ticker_hour/';
+ //   var url = 'https://www.bitstamp.net/api/ticker_hour/';
+    var url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,LTC&tsyms=USD&e=Coinbase'
     this.sendSocketNotification('GET_TICKERS', url);
   },
 
